@@ -7,6 +7,9 @@
 
 
 import os
+
+import numpy as np
+import matplotlib.pyplot as plt
 from model import *
 
 
@@ -17,9 +20,11 @@ def predictImage(testImagePath):
     visualizeImage(imageData, bboxes, kps, scale=0.25, show=True)
 
 
-def predictVideo(testVideoPath, outVideoPath='./runCache.mp4', cacheJsonPath='./runCache.json'):
+def predictVideo(testVideoPath, outVideoPath='./runCache.mp4', cacheJsonPath='./runCache.json', resultJsonPath='./result.json'):
     model = YoloKPDetector()
     model.track(testVideoPath, cacheJsonPath)
+    yolo_optimize(cacheJsonPath, cacheJsonPath)
+    getTwistNumber(cacheJsonPath, refile=True, savePath=resultJsonPath, threshold=160)
     visualizeVideo(
         srcVideoPath=testVideoPath,
         outVideoPath=outVideoPath,
@@ -28,8 +33,10 @@ def predictVideo(testVideoPath, outVideoPath='./runCache.mp4', cacheJsonPath='./
     )
 
 
+
 def getTwistInfo(cacheJsonPath, savePath):
-    getTwistNumber(cacheJsonPath, refile=None, savePath=savePath)
+    getTwistNumber(cacheJsonPath, refile=False, savePath=savePath)
+
 
 
 def twistDetectVideo(testVideoPath, outVideoPath='./runCache.mp4', cacheJsonPath='./runCache.json', pltSaveDir='./run'):
@@ -56,9 +63,20 @@ def twistDetectVideo(testVideoPath, outVideoPath='./runCache.mp4', cacheJsonPath
 
 
 if __name__ == "__main__":
-    predictVideo('./lz_test.avi')
-    # twistDetectVideo(
-    #     testVideoPath='./test2.mp4'
-    # )
-    # info = getTwistNumber(cacheJsonPath='./test.json')
-
+    th_info_array = []
+    x_ = np.array(list(range(0, 200, 5)))
+    for th in x_:
+        info = getTwistNumber(
+            cacheJsonPath='./D9/WL-D9.json',
+            refile=False,
+            savePath=None,
+            threshold=th
+        )
+        keyinfos = [info[key]['number'] for key in info.keys()]
+        th_info_array.append(keyinfos)
+    arr = np.array(th_info_array)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for col in range(arr.shape[1]):
+        ax.plot(x_, arr[:, col])
+    plt.show()

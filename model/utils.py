@@ -133,17 +133,23 @@ def visualizeFrame(frame, wormObjDict):
     """
     (x0, y0, x1, y1) = map(lambda x: int(x), wormObjDict['bbox'])
     cv2.rectangle(frame, (x0, y0), (x1, y1), DrawBBoxColor, DrawBBoxThickness)
-    ((xe1, ye1), (xc, yc), (xe2, ye2)) = wormObjDict['kps']
-    (xe1, ye1, xc, yc, xe2, ye2) = map(lambda x: int(x), (xe1, ye1, xc, yc, xe2, ye2))
-    cv2.circle(frame, (xe1, ye1), DrawEPRadius, DrawEPColor, DrawEPThickness)
-    cv2.circle(frame, (xe2, ye2), DrawEPRadius, DrawEPColor, DrawEPThickness)
-    cv2.circle(frame, (xc, yc), DrawCPRadius, DrawCPColor, DrawCPThickness)
-    cv2.line(frame, (xe1, ye1), (xc, yc), DrawLineColor, DrawLineThickness, cv2.LINE_AA)
-    cv2.line(frame, (xe2, ye2), (xc, yc), DrawLineColor, DrawLineThickness, cv2.LINE_AA)
+    try:
+        ((xe1, ye1), (xc, yc), (xe2, ye2)) = wormObjDict['kps']
+        (xe1, ye1, xc, yc, xe2, ye2) = map(lambda x: int(x), (xe1, ye1, xc, yc, xe2, ye2))
+        cv2.circle(frame, (xe1, ye1), DrawEPRadius, DrawEPColor, DrawEPThickness)
+        cv2.circle(frame, (xe2, ye2), DrawEPRadius, DrawEPColor, DrawEPThickness)
+        cv2.circle(frame, (xc, yc), DrawCPRadius, DrawCPColor, DrawCPThickness)
+        cv2.line(frame, (xe1, ye1), (xc, yc), DrawLineColor, DrawLineThickness, cv2.LINE_AA)
+        cv2.line(frame, (xe2, ye2), (xc, yc), DrawLineColor, DrawLineThickness, cv2.LINE_AA)
+    except:
+        pass
     cv2.putText(frame, str(wormObjDict['id']), (x0, y0), cv2.FONT_HERSHEY_SIMPLEX,
                 DrawIdSize, DrawIdColor, DrawIdThickness)
-    cv2.putText(frame, str(wormObjDict['tn']), (x1, y0), cv2.FONT_HERSHEY_SIMPLEX,
-                DrawTNSize, DrawTNColor, DrawTNThickness)
+    try:
+        cv2.putText(frame, str(wormObjDict['tn']), (x1, y0), cv2.FONT_HERSHEY_SIMPLEX,
+                    DrawTNSize, DrawTNColor, DrawTNThickness)
+    except:
+        pass
     return frame
 
 

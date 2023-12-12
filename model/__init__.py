@@ -7,6 +7,6 @@
 
 
 from .detector import YoloKPDetector
+from .optimizer import yolo_optimize
 from .utils import *
 from .math import *
-

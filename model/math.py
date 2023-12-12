@@ -12,7 +12,7 @@ import numpy as np
 from .utils import NpEncoder
 
 
-def getTwistNumber(cacheJsonPath, refile=True, savePath=None):
+def getTwistNumber(cacheJsonPath, refile=True, savePath=None, threshold=160):
     """
     :param cacheJsonPath: (Str) json格式的视频追踪缓存结果的路径
     :return: 包含每个目标扭动行为行为检测的信息
@@ -35,11 +35,14 @@ def getTwistNumber(cacheJsonPath, refile=True, savePath=None):
         frame_angle_list = []
         for frame_idx, frame_result in enumerate(frames):
             if str(_id) in frame_result.keys():
-                id_data = frame_result[str(_id)]
-                (ep1, cp, ep2) = id_data['kps']
-                angle = get_angle(ep1, cp, ep2)
-                frame_angle_list.append([frame_idx+1, angle])
-        peaks = find_peaks(frame_angle_list)
+                try:
+                    id_data = frame_result[str(_id)]
+                    (ep1, cp, ep2) = id_data['kps']
+                    angle = get_angle(ep1, cp, ep2)
+                    frame_angle_list.append([frame_idx+1, angle])
+                except:
+                    frame_angle_list.append([frame_idx + 1, 0])
+        peaks = find_peaks(frame_angle_list, threshold=threshold)
         twist_info = {
             'angleList': frame_angle_list,
             'peaks': peaks,
@@ -82,7 +85,7 @@ def get_angle(ep1, cp, ep2):
     return angle_degree
 
 
-def find_peaks(frame_angle_list):
+def find_peaks(frame_angle_list, threshold):
     """
     :param frame_angle_list: (List) [[f1, angle1], [f2, angle2], ...] 帧数和对应的角度列表
     :return: (List) [f1, f2, ...] 出现极大值的帧数列表
@@ -90,6 +93,7 @@ def find_peaks(frame_angle_list):
     peaks = []
     for idx in range(1, len(frame_angle_list) - 1):
         if frame_angle_list[idx - 1][1] < frame_angle_list[idx][1] and frame_angle_list[idx + 1][1] < frame_angle_list[idx][1]:
-            peaks.append(int(frame_angle_list[idx][0]))
+            if frame_angle_list[idx][1] > threshold:
+                peaks.append(int(frame_angle_list[idx][0]))
     return peaks
 
